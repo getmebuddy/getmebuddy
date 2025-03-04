@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ../.env
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=getmebuddy
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn getmebuddy.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ../:/opt/pysetup/
+      - static_volume:/opt/pysetup/staticfiles
+      - media_volume:/opt/pysetup/media
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/getmebuddy
+      - REDIS_URL=redis://redis:6379/0
+
+  daphne:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: daphne -b 0.0.0.0 -p 8001 getmebuddy.asgi:application
+    volumes:
+      - ../:/opt/pysetup/
+    ports:
+      - "8001:8001"
+    env_file:
+      - ../.env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/getmebuddy
+      - REDIS_URL=redis://redis:6379/0
+
+  nginx:
+    image: nginx:1.23
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_volume:/static
+      - media_volume:/media
+    depends_on:
+      - web
+      - daphne
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
