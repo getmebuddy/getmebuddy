@@ -145,7 +145,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.PORT }}
         script: |
-          cd /path/to/getmebuddy
+          cd /getmebuddy
           docker-compose -f docker/docker-compose.yml pull
           docker-compose -f docker/docker-compose.yml down
           docker-compose -f docker/docker-compose.yml up -d
