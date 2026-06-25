@@ -34,11 +34,12 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'channels',
     'storages',
     'django_filters',
-    
+
     # Local apps
     'users',
     'profiles',
@@ -47,6 +48,8 @@ INSTALLED_APPS = [
     'engagement',
     'safety',
     'monetization',
+    # Epic 2 — added when we create the activities app:
+    # 'activities',
 ]
 
 MIDDLEWARE = [
@@ -185,9 +188,20 @@ SIMPLE_JWT = {
 }
 
 # CORS settings
-CORS_ALLOWED_ORIGINS = os.environ.get(
-    'CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000'
-).split(',')
+# In DEBUG we allow everything so Expo Go / tunnel URLs don't need whitelisting.
+# In production set CORS_ALLOWED_ORIGINS in the environment instead.
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = os.environ.get(
+        'CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000'
+    ).split(',')
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Stripe — secret key and webhook secret live only in the backend environment.
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 
 # Channel layers for WebSockets
 CHANNEL_LAYERS = {

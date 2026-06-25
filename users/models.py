@@ -84,6 +84,28 @@ class User(AbstractBaseUser, PermissionsMixin):
         null=True,
     )
     last_login_ip = models.GenericIPAddressField(_('last login IP'), blank=True, null=True)
+
+    # --- Orbit client contract fields ---
+    full_name = models.CharField(_('full name'), max_length=300, blank=True, default='')
+    is_buddy = models.BooleanField(_('is buddy'), default=False)
+    VERIFICATION_NONE = 'none'
+    VERIFICATION_PENDING = 'pending'
+    VERIFICATION_APPROVED = 'approved'
+    VERIFICATION_REJECTED = 'rejected'
+    VERIFICATION_STATUS_CHOICES = [
+        (VERIFICATION_NONE, _('None')),
+        (VERIFICATION_PENDING, _('Pending')),
+        (VERIFICATION_APPROVED, _('Approved')),
+        (VERIFICATION_REJECTED, _('Rejected')),
+    ]
+    verification_status = models.CharField(
+        _('verification status'),
+        max_length=20,
+        choices=VERIFICATION_STATUS_CHOICES,
+        default=VERIFICATION_NONE,
+    )
+    avatar_url = models.URLField(_('avatar URL'), max_length=500, blank=True, default='')
+    push_token = models.CharField(_('push token'), max_length=255, blank=True, default='')
     
     # Account status
     is_suspended = models.BooleanField(_('suspended'), default=False)

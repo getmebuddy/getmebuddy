@@ -1,49 +1,43 @@
-"""
-URL configuration for getmebuddy project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    # Authentication endpoints
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    
-    # API endpoints for each app
+
+    # Orbit client auth contract
+    path('api/auth/', include('users.auth_urls')),
+    path('api/auth/refresh', TokenRefreshView.as_view(), name='token-refresh'),
+
+    # User profile + push-token
     path('api/users/', include('users.urls')),
+
+    # Activities (new app — Epic 2)
+    # path('api/activities/', include('activities.urls')),
+
+    # Payments + bookings (Epic 3)
+    # path('api/payments/', include('monetization.payment_urls')),
+    # path('api/bookings', include('monetization.booking_urls')),
+
+    # Messaging REST (Epic 4)
+    # path('api/chats/', include('messaging.urls')),
+
+    # Verification (Epic 5)
+    # path('api/verification', include('users.verification_urls')),
+
+    # Safety: reports + block
+    path('api/reports', include('safety.urls')),
+
+    # Legacy / internal
     path('api/profiles/', include('profiles.urls')),
     path('api/matching/', include('matching.urls')),
-    path('api/messaging/', include('messaging.urls')),
     path('api/engagement/', include('engagement.urls')),
-    path('api/safety/', include('safety.urls')),
     path('api/monetization/', include('monetization.urls')),
 ]
 
-# Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    
-    # Add debug toolbar URLs in development
     import debug_toolbar
     urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))
