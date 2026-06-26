@@ -1,9 +1,5 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from . import views
+from django.urls import path
+from .views import CreatePaymentIntentView, StripeWebhookView, BookingListCreateView
 
-router = DefaultRouter()
-
-urlpatterns = [
-    path('', include(router.urls)),
-]
+# Kept for the legacy path('api/monetization/', include('monetization.urls')) route
+urlpatterns = []

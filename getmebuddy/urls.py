@@ -14,12 +14,10 @@ urlpatterns = [
     # User profile + push-token
     path('api/users/', include('users.urls')),
 
-    # Activities (new app — Epic 2)
-    # path('api/activities/', include('activities.urls')),
+    path('api/activities/', include('activities.urls')),
 
-    # Payments + bookings (Epic 3)
-    # path('api/payments/', include('monetization.payment_urls')),
-    # path('api/bookings', include('monetization.booking_urls')),
+    path('api/payments/', include('monetization.payment_urls')),
+    path('api/bookings', include('monetization.booking_urls')),
 
     # Messaging REST (Epic 4)
     # path('api/chats/', include('messaging.urls')),

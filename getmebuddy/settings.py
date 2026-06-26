@@ -48,8 +48,7 @@ INSTALLED_APPS = [
     'engagement',
     'safety',
     'monetization',
-    # Epic 2 — added when we create the activities app:
-    # 'activities',
+    'activities',
 ]
 
 MIDDLEWARE = [
