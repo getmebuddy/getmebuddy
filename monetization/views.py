@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 
 from .models import Booking, StripeCustomer
 from .serializers import BookingSerializer, BookingCreateSerializer
+from users.push import notify_booking_confirmed
 
 
 def _get_stripe_customer(user):
@@ -92,6 +93,11 @@ class StripeWebhookView(APIView):
         if event['type'] == 'payment_intent.succeeded':
             pi_id = event['data']['object']['id']
             Booking.objects.filter(payment_intent_id=pi_id).update(status=Booking.STATUS_CONFIRMED)
+            try:
+                booking = Booking.objects.select_related('user', 'activity').get(payment_intent_id=pi_id)
+                notify_booking_confirmed(booking)
+            except Booking.DoesNotExist:
+                pass
 
         elif event['type'] == 'payment_intent.payment_failed':
             pi_id = event['data']['object']['id']

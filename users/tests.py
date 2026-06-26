@@ -177,3 +177,40 @@ def test_delete_account(auth_client):
     resp = client.delete('/api/users/me')
     assert resp.status_code == 204
     assert not User.objects.filter(email='test@example.com').exists()
+
+
+# --- Verification upload ---
+
+@pytest.mark.django_db
+def test_verification_requires_auth(client):
+    resp = client.post('/api/verification')
+    assert resp.status_code == 401
+
+
+@pytest.mark.django_db
+def test_verification_missing_files_returns_400(auth_client):
+    client, _ = auth_client
+    resp = client.post('/api/verification', {}, format='multipart')
+    assert resp.status_code == 400
+    assert 'id_document' in resp.data.get('detail', '') or 'required' in resp.data.get('detail', '')
+
+
+@pytest.mark.django_db
+def test_verification_upload_sets_pending(auth_client, tmp_path):
+    client, _ = auth_client
+    id_file = tmp_path / 'id.jpg'
+    selfie_file = tmp_path / 'selfie.jpg'
+    id_file.write_bytes(b'fake-id-image-data')
+    selfie_file.write_bytes(b'fake-selfie-data')
+
+    with id_file.open('rb') as idf, selfie_file.open('rb') as sf:
+        resp = client.post(
+            '/api/verification',
+            {'id_document': idf, 'selfie': sf},
+            format='multipart',
+        )
+
+    assert resp.status_code == 200
+    assert resp.data['status'] == 'pending'
+    user = User.objects.get(email='test@example.com')
+    assert user.verification_status == 'pending'

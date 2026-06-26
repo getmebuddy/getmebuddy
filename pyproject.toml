@@ -55,5 +55,6 @@ line_length = 88
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "getmebuddy.settings"
-python_files = "test_*.py"
-testpaths = ["users", "profiles", "matching", "messaging", "engagement", "safety", "monetization"]
+python_files = "tests.py test_*.py"
+testpaths = ["users", "profiles", "matching", "messaging", "engagement", "safety", "monetization", "activities"]
+env = ["DATABASE_URL=sqlite:///test.db"]

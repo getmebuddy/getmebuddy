@@ -19,11 +19,9 @@ urlpatterns = [
     path('api/payments/', include('monetization.payment_urls')),
     path('api/bookings', include('monetization.booking_urls')),
 
-    # Messaging REST (Epic 4)
-    # path('api/chats/', include('messaging.urls')),
+    path('api/chats/', include('messaging.urls')),
 
-    # Verification (Epic 5)
-    # path('api/verification', include('users.verification_urls')),
+    path('api/verification', include('users.verification_urls')),
 
     # Safety: reports + block
     path('api/reports', include('safety.urls')),
