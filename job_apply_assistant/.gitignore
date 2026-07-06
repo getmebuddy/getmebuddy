@@ -1,0 +1,18 @@
+# Personal config & data — never commit these.
+config.py
+baseline_resume.md
+
+# Generated output
+output_resumes/
+application_log.jsonl
+run.log
+*.png
+
+# Playwright / browser profile
+.pw-user-data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
