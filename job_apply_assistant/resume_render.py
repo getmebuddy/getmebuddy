@@ -5,14 +5,14 @@ Rendering is deterministic and driven off the Pydantic model (not a fragile
 Markdown->PDF pass), so output is consistent, ATS-friendly (real selectable
 text, simple single-column layout), and has no system-level dependencies.
 """
+
 from __future__ import annotations
 
 import os
 from typing import List
 
 from loguru import logger
-
-from models import TailoredResume, JobDescription
+from models import JobDescription, TailoredResume
 
 
 def _outfile(output_dir: str, jd: JobDescription, ext: str) -> str:
@@ -24,20 +24,42 @@ def _outfile(output_dir: str, jd: JobDescription, ext: str) -> str:
 # PDF (reportlab)
 # ---------------------------------------------------------------------------
 def render_pdf(resume: TailoredResume, jd: JobDescription, output_dir: str) -> str:
-    from reportlab.lib.pagesizes import LETTER
-    from reportlab.lib.units import inch
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.enums import TA_CENTER
+    from reportlab.lib.pagesizes import LETTER
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import inch
     from reportlab.platypus import (
-        SimpleDocTemplate, Paragraph, Spacer, HRFlowable, ListFlowable, ListItem,
+        HRFlowable,
+        ListFlowable,
+        ListItem,
+        Paragraph,
+        SimpleDocTemplate,
+        Spacer,
     )
 
     path = _outfile(output_dir, jd, "pdf")
     styles = getSampleStyleSheet()
-    name_style = ParagraphStyle("Name", parent=styles["Title"], fontSize=18, spaceAfter=2)
-    contact_style = ParagraphStyle("Contact", parent=styles["Normal"], alignment=TA_CENTER, fontSize=9, textColor="#444444")
-    section_style = ParagraphStyle("Section", parent=styles["Heading2"], fontSize=11, spaceBefore=10, spaceAfter=2, textColor="#222222")
-    entry_head = ParagraphStyle("EntryHead", parent=styles["Normal"], fontSize=10.5, spaceBefore=4, leading=13)
+    name_style = ParagraphStyle(
+        "Name", parent=styles["Title"], fontSize=18, spaceAfter=2
+    )
+    contact_style = ParagraphStyle(
+        "Contact",
+        parent=styles["Normal"],
+        alignment=TA_CENTER,
+        fontSize=9,
+        textColor="#444444",
+    )
+    section_style = ParagraphStyle(
+        "Section",
+        parent=styles["Heading2"],
+        fontSize=11,
+        spaceBefore=10,
+        spaceAfter=2,
+        textColor="#222222",
+    )
+    entry_head = ParagraphStyle(
+        "EntryHead", parent=styles["Normal"], fontSize=10.5, spaceBefore=4, leading=13
+    )
     body = ParagraphStyle("Body", parent=styles["Normal"], fontSize=9.5, leading=13)
 
     flow: List = [Paragraph(resume.name, name_style)]
@@ -47,32 +69,45 @@ def render_pdf(resume: TailoredResume, jd: JobDescription, output_dir: str) -> s
 
     if resume.summary:
         flow.append(Paragraph("SUMMARY", section_style))
-        flow.append(HRFlowable(width="100%", thickness=0.5, color="#cccccc", spaceAfter=4))
+        flow.append(
+            HRFlowable(width="100%", thickness=0.5, color="#cccccc", spaceAfter=4)
+        )
         flow.append(Paragraph(resume.summary, body))
 
     for sec in resume.sections:
         flow.append(Paragraph(sec.title.upper(), section_style))
-        flow.append(HRFlowable(width="100%", thickness=0.5, color="#cccccc", spaceAfter=4))
+        flow.append(
+            HRFlowable(width="100%", thickness=0.5, color="#cccccc", spaceAfter=4)
+        )
         for entry in sec.entries:
             head_bits = [b for b in (entry.heading, entry.subheading) if b]
-            head = " — ".join(f"<b>{b}</b>" if i == 0 else b for i, b in enumerate(head_bits))
+            head = " — ".join(
+                f"<b>{b}</b>" if i == 0 else b for i, b in enumerate(head_bits)
+            )
             if entry.date_range:
                 head += f"  <font color='#666666'>({entry.date_range})</font>"
             if head:
                 flow.append(Paragraph(head, entry_head))
             if entry.bullets:
-                flow.append(ListFlowable(
-                    [ListItem(Paragraph(b, body)) for b in entry.bullets],
-                    bulletType="bullet", start="•", leftIndent=12,
-                ))
+                flow.append(
+                    ListFlowable(
+                        [ListItem(Paragraph(b, body)) for b in entry.bullets],
+                        bulletType="bullet",
+                        start="•",
+                        leftIndent=12,
+                    )
+                )
         if sec.lines:
             for line in sec.lines:
                 flow.append(Paragraph(line, body))
 
     SimpleDocTemplate(
-        path, pagesize=LETTER,
-        leftMargin=0.7 * inch, rightMargin=0.7 * inch,
-        topMargin=0.6 * inch, bottomMargin=0.6 * inch,
+        path,
+        pagesize=LETTER,
+        leftMargin=0.7 * inch,
+        rightMargin=0.7 * inch,
+        topMargin=0.6 * inch,
+        bottomMargin=0.6 * inch,
     ).build(flow)
     logger.success("Wrote PDF: {}", path)
     return path
@@ -83,8 +118,8 @@ def render_pdf(resume: TailoredResume, jd: JobDescription, output_dir: str) -> s
 # ---------------------------------------------------------------------------
 def render_docx(resume: TailoredResume, jd: JobDescription, output_dir: str) -> str:
     from docx import Document
-    from docx.shared import Pt, RGBColor
     from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.shared import Pt, RGBColor
 
     path = _outfile(output_dir, jd, "docx")
     doc = Document()
@@ -133,7 +168,9 @@ def render_docx(resume: TailoredResume, jd: JobDescription, output_dir: str) -> 
     return path
 
 
-def render(resume: TailoredResume, jd: JobDescription, output_dir: str, formats: List[str]) -> List[str]:
+def render(
+    resume: TailoredResume, jd: JobDescription, output_dir: str, formats: List[str]
+) -> List[str]:
     """Render all requested formats; returns the list of written paths.
 
     The first path is treated as the "primary" resume to upload during

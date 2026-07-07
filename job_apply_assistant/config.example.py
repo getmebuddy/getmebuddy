@@ -9,6 +9,7 @@ Copy this file to `config.py` and fill in your details:
 committed. API keys are read from the environment (see .env), NOT hard-coded
 here.
 """
+
 import os
 
 # ---------------------------------------------------------------------------
@@ -33,7 +34,7 @@ BASELINE_RESUME_PATH = "baseline_resume.md"
 # Output
 # ---------------------------------------------------------------------------
 OUTPUT_DIR = "output_resumes"
-RESUME_FORMATS = ["pdf", "docx"]        # any subset of {"pdf", "docx"}
+RESUME_FORMATS = ["pdf", "docx"]  # any subset of {"pdf", "docx"}
 APPLICATION_LOG = "application_log.jsonl"
 
 # ---------------------------------------------------------------------------
@@ -64,7 +65,7 @@ MAX_ACTION_DELAY = 3.5
 # regex) against the field's visible label / placeholder / name. First match
 # wins, so put more specific patterns first.
 #
-#   type: "text"     -> types `value` into an input/textarea
+# type: "text"     -> types `value` into an input/textarea
 #         "select"   -> picks the option whose text best matches `value`
 #         "radio"    -> selects the radio/button whose label matches `value`
 #         "checkbox" -> checks the box if `value` is truthy
@@ -82,32 +83,55 @@ CONTACT = {
 
 ANSWERS = [
     # --- identity / contact ---
-    {"match": r"first\s*name",                      "type": "text",   "value": CONTACT["first_name"]},
-    {"match": r"last\s*name|surname|family\s*name", "type": "text",   "value": CONTACT["last_name"]},
-    {"match": r"full\s*name|^name$",                "type": "text",   "value": CONTACT["full_name"]},
-    {"match": r"e-?mail",                           "type": "text",   "value": CONTACT["email"]},
-    {"match": r"phone|mobile|contact\s*number",     "type": "text",   "value": CONTACT["phone"]},
-    {"match": r"linkedin",                          "type": "text",   "value": CONTACT["linkedin"]},
-    {"match": r"portfolio|website|personal\s*site", "type": "text",   "value": CONTACT["website"]},
-    {"match": r"city|location|where.*based",        "type": "text",   "value": CONTACT["city"]},
-
+    {"match": r"first\s*name", "type": "text", "value": CONTACT["first_name"]},
+    {
+        "match": r"last\s*name|surname|family\s*name",
+        "type": "text",
+        "value": CONTACT["last_name"],
+    },
+    {"match": r"full\s*name|^name$", "type": "text", "value": CONTACT["full_name"]},
+    {"match": r"e-?mail", "type": "text", "value": CONTACT["email"]},
+    {
+        "match": r"phone|mobile|contact\s*number",
+        "type": "text",
+        "value": CONTACT["phone"],
+    },
+    {"match": r"linkedin", "type": "text", "value": CONTACT["linkedin"]},
+    {
+        "match": r"portfolio|website|personal\s*site",
+        "type": "text",
+        "value": CONTACT["website"],
+    },
+    {"match": r"city|location|where.*based", "type": "text", "value": CONTACT["city"]},
     # --- common screening questions ---
-    {"match": r"years?.*experience",                "type": "text",   "value": "6"},
-    {"match": r"authorized|authorised|eligible.*work|work\s*authorization",
-                                                    "type": "radio",  "value": "Yes"},
-    {"match": r"require.*sponsor|need.*sponsor|visa\s*sponsor",
-                                                    "type": "radio",  "value": "No"},
-    {"match": r"willing.*relocate|open.*relocat",   "type": "radio",  "value": "Yes"},
-    {"match": r"remote|hybrid|on-?site|work\s*arrangement",
-                                                    "type": "select", "value": "Remote"},
-    {"match": r"notice\s*period",                   "type": "text",   "value": "2 weeks"},
-    {"match": r"salary|compensation.*expect|expected\s*pay",
-                                                    "type": "text",   "value": "Open / negotiable"},
-    {"match": r"how did you hear",                  "type": "select", "value": "LinkedIn"},
-    {"match": r"gender",                            "type": "select", "value": "Decline to self-identify"},
-    {"match": r"race|ethnicity",                    "type": "select", "value": "Decline to self-identify"},
-    {"match": r"veteran",                           "type": "select", "value": "Decline to self-identify"},
-    {"match": r"disability",                        "type": "select", "value": "Decline to self-identify"},
+    {"match": r"years?.*experience", "type": "text", "value": "6"},
+    {
+        "match": r"authorized|authorised|eligible.*work|work\s*authorization",
+        "type": "radio",
+        "value": "Yes",
+    },
+    {
+        "match": r"require.*sponsor|need.*sponsor|visa\s*sponsor",
+        "type": "radio",
+        "value": "No",
+    },
+    {"match": r"willing.*relocate|open.*relocat", "type": "radio", "value": "Yes"},
+    {
+        "match": r"remote|hybrid|on-?site|work\s*arrangement",
+        "type": "select",
+        "value": "Remote",
+    },
+    {"match": r"notice\s*period", "type": "text", "value": "2 weeks"},
+    {
+        "match": r"salary|compensation.*expect|expected\s*pay",
+        "type": "text",
+        "value": "Open / negotiable",
+    },
+    {"match": r"how did you hear", "type": "select", "value": "LinkedIn"},
+    {"match": r"gender", "type": "select", "value": "Decline to self-identify"},
+    {"match": r"race|ethnicity", "type": "select", "value": "Decline to self-identify"},
+    {"match": r"veteran", "type": "select", "value": "Decline to self-identify"},
+    {"match": r"disability", "type": "select", "value": "Decline to self-identify"},
 ]
 
 # If a REQUIRED field can't be matched to any answer above, what should we do?

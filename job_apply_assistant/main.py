@@ -13,25 +13,28 @@ Usage:
 
 Copy config.example.py -> config.py first and fill in your details.
 """
+
 from __future__ import annotations
 
 import argparse
 import asyncio
 import sys
 
-from loguru import logger
-
 import config
 import jd_fetch
 import llm
 import resume_render
+from loguru import logger
 from models import ApplicationOutcome, ApplicationRecord
 
 
 def _configure_logging() -> None:
     logger.remove()
-    logger.add(sys.stderr, level="INFO",
-               format="<green>{time:HH:mm:ss}</green> | <level>{level:<8}</level> | {message}")
+    logger.add(
+        sys.stderr,
+        level="INFO",
+        format="<green>{time:HH:mm:ss}</green> | <level>{level:<8}</level> | {message}",
+    )
     logger.add("run.log", level="DEBUG", rotation="5 MB", retention=5)
 
 
@@ -46,7 +49,9 @@ def _load_baseline() -> str:
 def _log_record(record: ApplicationRecord) -> None:
     with open(config.APPLICATION_LOG, "a", encoding="utf-8") as fh:
         fh.write(record.model_dump_json() + "\n")
-    logger.info("Logged application record: {} -> {}", record.company, record.outcome.value)
+    logger.info(
+        "Logged application record: {} -> {}", record.company, record.outcome.value
+    )
 
 
 async def run(url: str, tailor_only: bool, force_submit: bool) -> None:
@@ -69,11 +74,16 @@ async def run(url: str, tailor_only: bool, force_submit: bool) -> None:
     primary_resume = paths[0]  # PDF first when present — best for uploads.
 
     if tailor_only:
-        _log_record(ApplicationRecord(
-            url=url, company=jd.company, title=jd.title,
-            resume_path=primary_resume, outcome=ApplicationOutcome.TAILORED,
-            detail="tailor-only mode",
-        ))
+        _log_record(
+            ApplicationRecord(
+                url=url,
+                company=jd.company,
+                title=jd.title,
+                resume_path=primary_resume,
+                outcome=ApplicationOutcome.TAILORED,
+                detail="tailor-only mode",
+            )
+        )
         logger.success("Done (tailor-only). Resume(s): {}", ", ".join(paths))
         return
 
@@ -83,22 +93,37 @@ async def run(url: str, tailor_only: bool, force_submit: bool) -> None:
         logger.warning("--submit passed: AUTO_SUBMIT overridden to True for this run.")
 
     import form_filler  # imported here so tailor-only runs need no browser deps loaded
+
     outcome, detail = await form_filler.apply_to_job(url, primary_resume, config)
 
-    _log_record(ApplicationRecord(
-        url=url, company=jd.company, title=jd.title,
-        resume_path=primary_resume, outcome=outcome, detail=detail,
-    ))
+    _log_record(
+        ApplicationRecord(
+            url=url,
+            company=jd.company,
+            title=jd.title,
+            resume_path=primary_resume,
+            outcome=outcome,
+            detail=detail,
+        )
+    )
     logger.success("Finished: {} ({})", outcome.value, detail)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Tailor a resume to a JD and fill the application.")
+    parser = argparse.ArgumentParser(
+        description="Tailor a resume to a JD and fill the application."
+    )
     parser.add_argument("url", help="URL of the job posting / application page")
-    parser.add_argument("--tailor-only", action="store_true",
-                        help="Generate the tailored resume only; don't touch the application form.")
-    parser.add_argument("--submit", action="store_true",
-                        help="Override config and auto-click Submit (use deliberately).")
+    parser.add_argument(
+        "--tailor-only",
+        action="store_true",
+        help="Generate the tailored resume only; don't touch the application form.",
+    )
+    parser.add_argument(
+        "--submit",
+        action="store_true",
+        help="Override config and auto-click Submit (use deliberately).",
+    )
     args = parser.parse_args()
 
     _configure_logging()

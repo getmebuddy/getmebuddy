@@ -17,6 +17,7 @@ Design notes
   behaves like a person filling a form, at a person's pace. On sites whose
   terms forbid automated submission (e.g. LinkedIn), don't point it there.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -25,13 +26,14 @@ import re
 from typing import List, Optional
 
 from loguru import logger
-from playwright.async_api import async_playwright, Page, ElementHandle
-
 from models import ApplicationOutcome
+from playwright.async_api import ElementHandle, Page, async_playwright
 
 # Button labels we treat as "advance the form" vs "finish".
 _NEXT_LABELS = re.compile(r"\b(next|continue|save and continue|review)\b", re.I)
-_SUBMIT_LABELS = re.compile(r"\b(submit application|submit|send application|apply now)\b", re.I)
+_SUBMIT_LABELS = re.compile(
+    r"\b(submit application|submit|send application|apply now)\b", re.I
+)
 _APPLY_LABELS = re.compile(r"\b(easy apply|apply now|apply for this|apply)\b", re.I)
 
 # JS that computes a human-readable label for a form control.
@@ -55,7 +57,9 @@ async def human_pause(cfg) -> None:
     await asyncio.sleep(random.uniform(cfg.MIN_ACTION_DELAY, cfg.MAX_ACTION_DELAY))
 
 
-def _match_answer(label: str, answers: list, want_type: Optional[str] = None) -> Optional[dict]:
+def _match_answer(
+    label: str, answers: list, want_type: Optional[str] = None
+) -> Optional[dict]:
     """First answer whose regex matches the label (optionally of a given type)."""
     for a in answers:
         if want_type and a.get("type") != want_type:
@@ -79,8 +83,12 @@ async def _fill_text_and_selects(page: Page, cfg) -> None:
     for handle in await page.query_selector_all("input, textarea, select"):
         if not await _visible(handle):
             continue
-        tag = (await handle.evaluate("el => el.tagName.toLowerCase()"))
-        input_type = (await handle.evaluate("el => (el.type || '').toLowerCase()")) if tag == "input" else ""
+        tag = await handle.evaluate("el => el.tagName.toLowerCase()")
+        input_type = (
+            (await handle.evaluate("el => (el.type || '').toLowerCase()"))
+            if tag == "input"
+            else ""
+        )
         if input_type in ("radio", "checkbox", "file", "hidden", "submit", "button"):
             continue
 
@@ -101,7 +109,12 @@ async def _fill_text_and_selects(page: Page, cfg) -> None:
                     await handle.select_option(label=ans["value"])
                     logger.info("select  [{}] -> {}", label[:50], ans["value"])
                 except Exception as e:
-                    logger.warning("select  [{}] could not pick '{}': {}", label[:50], ans["value"], e)
+                    logger.warning(
+                        "select  [{}] could not pick '{}': {}",
+                        label[:50],
+                        ans["value"],
+                        e,
+                    )
         else:  # text / textarea
             ans = _match_answer(label, cfg.ANSWERS, want_type="text")
             if not ans:
@@ -214,7 +227,9 @@ async def _click_by_label(page: Page, pattern: re.Pattern) -> bool:
             try:
                 if not await item.is_visible() or not await item.is_enabled():
                     continue
-                text = (await item.inner_text()) or (await item.get_attribute("aria-label") or "")
+                text = (await item.inner_text()) or (
+                    await item.get_attribute("aria-label") or ""
+                )
                 if pattern.search(text):
                     await item.click()
                     logger.info("Clicked button: '{}'", text.strip()[:40])
@@ -224,7 +239,9 @@ async def _click_by_label(page: Page, pattern: re.Pattern) -> bool:
     return False
 
 
-async def apply_to_job(url: str, resume_path: str, cfg) -> tuple[ApplicationOutcome, str]:
+async def apply_to_job(
+    url: str, resume_path: str, cfg
+) -> tuple[ApplicationOutcome, str]:
     """Drive a full application. Returns (outcome, detail)."""
     async with async_playwright() as p:
         if cfg.USER_DATA_DIR:
@@ -244,7 +261,9 @@ async def apply_to_job(url: str, resume_path: str, cfg) -> tuple[ApplicationOutc
 
             # 1. Open the application form.
             if not await _click_by_label(page, _APPLY_LABELS):
-                logger.warning("No 'Apply' button found — the page may already be the form.")
+                logger.warning(
+                    "No 'Apply' button found — the page may already be the form."
+                )
             await human_pause(cfg)
 
             # 2. Walk up to N steps. Guard against infinite loops.
@@ -255,13 +274,19 @@ async def apply_to_job(url: str, resume_path: str, cfg) -> tuple[ApplicationOutc
                 # Bail out to a human if a required field is unanswered.
                 missing = await _unanswered_required(page, cfg)
                 if missing:
-                    detail = "Unanswered required field(s): " + "; ".join(m[:60] for m in missing[:5])
+                    detail = "Unanswered required field(s): " + "; ".join(
+                        m[:60] for m in missing[:5]
+                    )
                     logger.warning(detail)
                     if cfg.ON_UNKNOWN_REQUIRED_FIELD == "pause":
-                        logger.warning("Pausing for human input. Complete the form, then press Enter here.")
+                        logger.warning(
+                            "Pausing for human input. Complete the form, then press Enter here."
+                        )
                         await page.screenshot(path="needs_human.png")
                         try:
-                            input("Press Enter once you've handled the flagged fields... ")
+                            input(
+                                "Press Enter once you've handled the flagged fields... "
+                            )
                         except EOFError:
                             pass
                     else:
@@ -277,23 +302,35 @@ async def apply_to_job(url: str, resume_path: str, cfg) -> tuple[ApplicationOutc
                         logger.success("Submitted application.")
                         await page.screenshot(path="submitted.png")
                         return ApplicationOutcome.SUBMITTED, "submitted"
-                    logger.info("AUTO_SUBMIT is off — form filled, stopping for your review.")
+                    logger.info(
+                        "AUTO_SUBMIT is off — form filled, stopping for your review."
+                    )
                     await page.screenshot(path="ready_to_submit.png")
                     if not cfg.HEADLESS:
                         try:
-                            input("Review the form in the browser, then press Enter to close... ")
+                            input(
+                                "Review the form in the browser, then press Enter to close... "
+                            )
                         except EOFError:
                             pass
-                    return (ApplicationOutcome.FILLED_PENDING_REVIEW,
-                            "form filled; awaiting human submit (AUTO_SUBMIT=False)")
+                    return (
+                        ApplicationOutcome.FILLED_PENDING_REVIEW,
+                        "form filled; awaiting human submit (AUTO_SUBMIT=False)",
+                    )
 
                 if not await _click_by_label(page, _NEXT_LABELS):
                     logger.warning("No Next/Submit button found — cannot advance.")
                     await page.screenshot(path="stuck.png")
-                    return ApplicationOutcome.NEEDS_HUMAN, "could not find a Next/Submit button"
+                    return (
+                        ApplicationOutcome.NEEDS_HUMAN,
+                        "could not find a Next/Submit button",
+                    )
                 await human_pause(cfg)
 
-            return ApplicationOutcome.NEEDS_HUMAN, "exceeded step limit without a Submit button"
+            return (
+                ApplicationOutcome.NEEDS_HUMAN,
+                "exceeded step limit without a Submit button",
+            )
         except Exception as e:
             logger.exception("Application flow failed")
             try:
@@ -315,7 +352,9 @@ async def _has_button(page: Page, pattern: re.Pattern) -> bool:
             item = loc.nth(i)
             try:
                 if await item.is_visible():
-                    text = (await item.inner_text()) or (await item.get_attribute("aria-label") or "")
+                    text = (await item.inner_text()) or (
+                        await item.get_attribute("aria-label") or ""
+                    )
                     if pattern.search(text):
                         return True
             except Exception:

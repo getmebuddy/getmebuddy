@@ -6,6 +6,7 @@ validation "for free" and a single source of truth for the shapes of data
 flowing between the JD fetcher, the LLM tailoring engine, the renderer, and
 the form filler.
 """
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -45,9 +46,9 @@ class JobDescription(BaseModel):
 class ResumeEntry(BaseModel):
     """One role/project/education line item within a section."""
 
-    heading: str = ""            # e.g. "Senior Backend Engineer"
-    subheading: str = ""         # e.g. "Acme Corp"
-    date_range: str = ""         # e.g. "2021 – Present"
+    heading: str = ""  # e.g. "Senior Backend Engineer"
+    subheading: str = ""  # e.g. "Acme Corp"
+    date_range: str = ""  # e.g. "2021 – Present"
     bullets: List[str] = Field(default_factory=list)
 
 
@@ -64,8 +65,8 @@ class TailoredResume(BaseModel):
     """The LLM's tailored resume — structured so rendering is deterministic."""
 
     name: str
-    contact_line: str = ""       # "email · phone · city · linkedin"
-    summary: str = ""            # rewritten professional summary
+    contact_line: str = ""  # "email · phone · city · linkedin"
+    summary: str = ""  # rewritten professional summary
     sections: List[ResumeSection] = Field(default_factory=list)
 
     # Transparency: what the model keyed on and changed. Purely informational,
@@ -78,10 +79,12 @@ class TailoredResume(BaseModel):
 # Application status / audit record
 # ---------------------------------------------------------------------------
 class ApplicationOutcome(str, Enum):
-    TAILORED = "tailored"                 # resume generated, not yet applied
-    FILLED_PENDING_REVIEW = "filled_pending_review"  # form filled, waiting on human submit
-    SUBMITTED = "submitted"               # application submitted
-    NEEDS_HUMAN = "needs_human"           # unanswered/unknown field — paused
+    TAILORED = "tailored"  # resume generated, not yet applied
+    FILLED_PENDING_REVIEW = (
+        "filled_pending_review"  # form filled, waiting on human submit
+    )
+    SUBMITTED = "submitted"  # application submitted
+    NEEDS_HUMAN = "needs_human"  # unanswered/unknown field — paused
     SKIPPED = "skipped"
     FAILED = "failed"
 
@@ -95,4 +98,4 @@ class ApplicationRecord(BaseModel):
     title: str = ""
     resume_path: Optional[str] = None
     outcome: ApplicationOutcome
-    detail: str = ""             # human-readable note (error, unanswered field, ...)
+    detail: str = ""  # human-readable note (error, unanswered field, ...)

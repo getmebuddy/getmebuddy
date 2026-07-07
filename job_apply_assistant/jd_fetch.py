@@ -6,13 +6,16 @@ modern ATS/job sites) still yield real text. The raw text is handed to the LLM
 (`llm.extract_job_description`) for structuring — we deliberately keep the
 scraping dumb (grab visible text) and let the model do the parsing.
 """
+
 from __future__ import annotations
 
-from playwright.async_api import async_playwright
 from loguru import logger
+from playwright.async_api import async_playwright
 
 
-async def fetch_page_text(url: str, headless: bool = True, timeout_ms: int = 45000) -> str:
+async def fetch_page_text(
+    url: str, headless: bool = True, timeout_ms: int = 45000
+) -> str:
     """Load `url` and return the page's visible inner text."""
     logger.info("Fetching JD page: {}", url)
     async with async_playwright() as p:

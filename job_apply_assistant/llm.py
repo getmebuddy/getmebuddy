@@ -11,15 +11,15 @@ Two responsibilities, both via litellm so the model is swappable from config:
 Both call the model in JSON mode and validate the result with Pydantic, so a
 malformed model response fails loudly instead of silently corrupting a resume.
 """
+
 from __future__ import annotations
 
 import json
 
 import litellm
 from loguru import logger
-from tenacity import retry, stop_after_attempt, wait_exponential
-
 from models import JobDescription, TailoredResume
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 # Keep litellm quiet unless something's wrong; we do our own logging.
 litellm.suppress_debug_info = True
@@ -60,8 +60,12 @@ If a field is genuinely absent, use null (or "Unknown ...").
 """
 
 
-def extract_job_description(url: str, page_text: str, model: str, temperature: float = 0.0) -> JobDescription:
-    logger.info("Extracting structured JD via LLM ({} chars of page text)", len(page_text))
+def extract_job_description(
+    url: str, page_text: str, model: str, temperature: float = 0.0
+) -> JobDescription:
+    logger.info(
+        "Extracting structured JD via LLM ({} chars of page text)", len(page_text)
+    )
     data = _complete_json(
         model=model,
         system=_EXTRACT_SYSTEM,
@@ -146,7 +150,9 @@ def tailor_resume(
         f"Title: {jd.title}\nCompany: {jd.company}\nLocation: {jd.location}\n\n"
         f"{jd.description}"
     )
-    data = _complete_json(model=model, system=_TAILOR_SYSTEM, user=user, temperature=temperature)
+    data = _complete_json(
+        model=model, system=_TAILOR_SYSTEM, user=user, temperature=temperature
+    )
     resume = TailoredResume.model_validate(data)
     logger.success(
         "Tailored resume ready — {} sections, {} matched keywords",

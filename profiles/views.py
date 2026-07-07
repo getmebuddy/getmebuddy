@@ -1,9 +1,14 @@
-from rest_framework import viewsets, permissions, status, generics
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 
-from .models import UserProfile, Interest, InterestChoice, Availability
-from .serializers import UserProfileSerializer, InterestSerializer, InterestChoiceSerializer, AvailabilitySerializer
+from .models import Availability, Interest, InterestChoice, UserProfile
+from .serializers import (
+    AvailabilitySerializer,
+    InterestChoiceSerializer,
+    InterestSerializer,
+    UserProfileSerializer,
+)
 
 # Views will be implemented here
