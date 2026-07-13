@@ -71,14 +71,14 @@ MAX_ACTION_DELAY = 3.5
 #         "checkbox" -> checks the box if `value` is truthy
 # ---------------------------------------------------------------------------
 CONTACT = {
-    "first_name": "Jane",
-    "last_name": "Doe",
-    "full_name": "Jane Doe",
-    "email": "jane.doe@example.com",
-    "phone": "+1 555 010 1234",
-    "city": "San Francisco, CA",
-    "linkedin": "https://www.linkedin.com/in/janedoe",
-    "website": "https://janedoe.dev",
+    "first_name": "Vivek",
+    "last_name": "Singh",
+    "full_name": "Vivek Singh",
+    "email": "vxs159830@gmail.com",
+    "phone": "(347)-295-4269",
+    "city": "Dallas, TX",
+    "linkedin": "",  # add your LinkedIn profile URL
+    "website": "",  # add a portfolio/website URL if you have one
 }
 
 ANSWERS = [
@@ -104,7 +104,7 @@ ANSWERS = [
     },
     {"match": r"city|location|where.*based", "type": "text", "value": CONTACT["city"]},
     # --- common screening questions ---
-    {"match": r"years?.*experience", "type": "text", "value": "6"},
+    {"match": r"years?.*experience", "type": "text", "value": "10"},
     {
         "match": r"authorized|authorised|eligible.*work|work\s*authorization",
         "type": "radio",

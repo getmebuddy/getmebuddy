@@ -1,6 +1,6 @@
-# Personal config & data — never commit these.
+# Personal working config (may hold secrets) — keep out of git.
 config.py
-baseline_resume.md
+# NOTE: baseline_resume.md is intentionally tracked in this repo.
 
 # Generated output
 output_resumes/
