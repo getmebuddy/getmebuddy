@@ -12,6 +12,12 @@ here.
 
 import os
 
+from dotenv import load_dotenv
+
+# Load environment variables from a local, git-ignored .env file if present, so
+# your secret API keys live there (or in your shell) — never hard-coded here.
+load_dotenv()
+
 # ---------------------------------------------------------------------------
 # LLM — swappable via litellm. Just change the model string.
 #   OpenAI:     "gpt-4o", "gpt-4o-mini"

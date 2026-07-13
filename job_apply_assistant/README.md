@@ -50,17 +50,22 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 playwright install chromium          # one-time browser download
 
-# Your personal files (both git-ignored):
+# Your personal files (all git-ignored):
 cp config.example.py config.py                 # edit answers, model, formats
 cp baseline_resume.example.md baseline_resume.md   # paste in your real resume
+cp .env.example .env                           # put your API key here
 ```
 
-Set your API key in the environment (a `.env` in this folder is auto-loaded if
-you `source` it, or export directly):
+Put your LLM API key in `.env` — it's loaded automatically at startup (via
+`python-dotenv`) and is git-ignored, so your secret never gets committed:
 
 ```bash
-export ANTHROPIC_API_KEY=sk-...      # or OPENAI_API_KEY / GEMINI_API_KEY
+# .env
+ANTHROPIC_API_KEY=sk-...              # or OPENAI_API_KEY / GEMINI_API_KEY
 ```
+
+(Exporting the variable in your shell instead also works — `.env` is just the
+convenient, git-safe place for it.)
 
 The model is chosen in `config.py` (`LLM_MODEL`) — litellm routes to the right
 provider, so swapping models is a one-line change.

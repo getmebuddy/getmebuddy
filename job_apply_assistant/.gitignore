@@ -1,5 +1,6 @@
-# Personal working config (may hold secrets) — keep out of git.
+# Personal working config & secrets — keep out of git.
 config.py
+.env
 # NOTE: baseline_resume.md is intentionally tracked in this repo.
 
 # Generated output
