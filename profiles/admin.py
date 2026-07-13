@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Interest, InterestChoice, UserProfile, Availability
+
+from .models import Availability, Interest, InterestChoice, UserProfile
 
 # Register your models here
 admin.site.register(Interest)

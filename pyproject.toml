@@ -1,13 +1,9 @@
-[project]
+[tool.poetry]
 name = "getmebuddy"
 version = "0.1.0"
 description = "Social buddy matching platform"
-authors = [
-    {name = "Vivek Singh viki00762@gmail.com"}
-]
+authors = ["Vivek Singh <viki00762@gmail.com>"]
 readme = "README.md"
-requires-python = "^3.10"
-
 
 [tool.poetry.dependencies]
 python = "^3.10"

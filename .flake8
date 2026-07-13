@@ -1,0 +1,12 @@
+[flake8]
+# Keep flake8's default excludes and add the in-project virtualenv (CI uses
+# poetry with virtualenvs-in-project: true, which creates ./.venv) plus build
+# artifacts and generated migrations, so `flake8 .` only lints our own code.
+extend-exclude =
+    .venv,
+    venv,
+    build,
+    dist,
+    */migrations/*,
+    output_resumes
+max-line-length = 88

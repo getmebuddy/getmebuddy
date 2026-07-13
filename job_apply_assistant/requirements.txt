@@ -1,0 +1,21 @@
+# --- Core automation pipeline dependencies ---
+
+# Browser automation (async, robust with dynamic UIs)
+playwright==1.44.0
+
+# LLM orchestration — provider-agnostic. Swap models via config, not code.
+litellm==1.40.0
+
+# Data validation / typed models
+pydantic==2.7.1
+
+# Document generation
+python-docx==1.1.2      # DOCX output
+reportlab==4.2.0        # PDF output (pure-python, no system deps)
+
+# Structured logging
+loguru==0.7.2
+
+# Misc
+python-dotenv==1.0.1    # load API keys from .env
+tenacity==8.3.0         # retry wrapper for flaky LLM/network calls

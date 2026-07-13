@@ -1,0 +1,19 @@
+# Personal working config & secrets — keep out of git.
+config.py
+.env
+# NOTE: baseline_resume.md is intentionally tracked in this repo.
+
+# Generated output
+output_resumes/
+application_log.jsonl
+run.log
+*.png
+
+# Playwright / browser profile
+.pw-user-data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
